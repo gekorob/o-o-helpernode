@@ -10,6 +10,7 @@
     - import_tasks: set_vm_facts.yml
       no_log: True
       delegate_to: localhost
+      when: profile != 'ipi'
 
     - name: Create from template
       tags:

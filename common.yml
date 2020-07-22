@@ -2,6 +2,7 @@
   include_vars:
     file: "{{ ocp.assets_dir }}/metadata.json"
     name: metadata
+  when: profile != 'ipi'
 
 - name: Include ocp ovirt conf variables
   include_vars:

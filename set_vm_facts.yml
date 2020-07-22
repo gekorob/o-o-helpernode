@@ -56,7 +56,7 @@
           {
             'name': item.item.name,
             'mac': item.ovirt_nics[0].mac.address,
-            'ip': (ocp.upi.boostrap_base_ipaddr | regex_replace('(^.*\.).*$', '\1')) + ((ocp.upi.bootstrap_base_ipaddr.split('.')[3] | int + idx) | string)
+            'ip': (ocp.upi.bootstrap_base_ipaddr | regex_replace('(^.*\.).*$', '\1')) + ((ocp.upi.bootstrap_base_ipaddr.split('.')[3] | int + idx) | string)
           }
         ]
       }}
