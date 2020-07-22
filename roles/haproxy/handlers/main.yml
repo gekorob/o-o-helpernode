@@ -4,3 +4,9 @@
     name: firewalld
     enabled: yes
     state: restarted
+
+- name: restart proxy
+  service:
+    name: haproxy
+    enabled: yes
+    state: restarted

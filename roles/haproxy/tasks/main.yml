@@ -18,6 +18,7 @@
     group: root
     mode: 0644
     setype: etc_t
+  notify: restart proxy
 
 - name: Enable ports to be proxied
   firewalld:
