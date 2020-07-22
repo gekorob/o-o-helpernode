@@ -1,0 +1,19 @@
+$TTL 1W
+@	IN	SOA	ns1.{{ infra.basedomain }}.	root (
+			{{ serialnumber }}	; serial
+			3H		; refresh (3 hours)
+			30M		; retry (30 minutes)
+			2W		; expiry (2 weeks)
+			1W )		; minimum (1 week)
+	IN	NS	ns1.{{ infra.basedomain }}.
+	IN	MX 10	smtp.{{ infra.basedomain }}.
+;
+; 
+ns1	IN	A	{{ helper_node.ipaddr }}
+smtp	IN	A	{{ helper_node.ipaddr }}
+;
+{{ helper_node.hostname }}	IN	A	{{ helper_node.ipaddr }}
+;
+{{ infra.engine.hostname }}		IN	A	{{ infra.engine.ipaddr }}
+;
+;EOF

@@ -1,0 +1,41 @@
+default-lease-time 14400;
+max-lease-time 14400;
+authoritative;
+log-facility local7;
+
+option domain-name "{{ocp.clustername}}.{{ ocp.basedomain }}";
+option subnet-mask {{ dhcp_subnet_mask }};
+option domain-name-servers {{ helper_node.ipaddr }};
+option routers {{ dhcp_router }};
+
+subnet {{ dhcp_subnet }} netmask {{ dhcp_subnet_mask }} {
+    pool {
+      range {{ dhcp_range_min }} {{ dhcp_range_max }};
+
+{% if profile == 'upi' %}
+{% for item in bootstrap_list %}
+host {{ item.name }} {
+    option host-name "{{ item.name }}.{{ ocp.clustername}}.{{ocp.basedomain }}";
+    hardware ethernet {{ item.mac }};
+    fixed-address {{ item.ip }};
+}
+{% endfor %}
+
+{% for item in masters_list %}
+host {{ item.name }} {
+    option host-name "{{ item.name }}.{{ ocp.clustername}}.{{ocp.basedomain }}";
+    hardware ethernet {{ item.mac }};
+    fixed-address {{ item.ip }};
+}
+{% endfor %}
+
+{% for item in workers_list %}
+host {{ item.name }} {
+    option host-name "{{ item.name }}.{{ ocp.clustername}}.{{ocp.basedomain }}";
+    hardware ethernet {{ item.mac }};
+    fixed-address {{ item.ip }};
+}
+{% endfor %}
+{% endif %}
+}
+}

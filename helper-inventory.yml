@@ -1,0 +1,30 @@
+all:
+  vars:
+    profile: upi #(upi | ipi)
+
+    helper_node:
+      hostname: "{{ profile }}helper"
+      ipaddr: "172.16.0.253"
+      gateway: "172.16.0.1"
+
+    ovirt:
+      engine_ipaddr: "192.168.178.120"
+      clustername: "Default"
+
+    ocp:
+      ovirt_config_path: "{{ lookup('env', 'HOME') }}/.ovirt/ovirt-config.yaml"
+      basedomain: "lab.inz.com"
+      clustername: "ocp4"
+      assets_dir: "../wrk"
+      ipi:
+        api_vip: "172.16.0.252"
+        ingress_vip: "172.16.0.251"
+      upi:
+        bootstrap_base_ipaddr: "172.16.0.40"
+        masters_base_ipaddr: "172.16.0.50"
+        workers_base_ipaddr: "172.16.0.60"
+
+
+  hosts:
+    helper:
+      ansible_host: "{{ helper_node.ipaddr }}"

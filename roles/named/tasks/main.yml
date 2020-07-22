@@ -1,0 +1,52 @@
+---
+- name: Install bind package
+  dnf:
+    name:
+      - bind
+      - bind-utils
+    state: latest
+
+- name: named conf file
+  template:
+    src: named.conf.j2
+    dest: /etc/named.conf
+
+- name: Installing DNS Serialnumber generator
+  copy:
+    src: set-dns-serial.sh
+    dest: /usr/local/bin/set-dns-serial.sh
+    mode: '0555'
+
+- name: Set zone serial number
+  shell: "/usr/local/bin/set-dns-serial.sh"
+  register: dymanicserialnumber
+
+- name: Setting serial number as a fact
+  set_fact:
+    serialnumber: "{{ dymanicserialnumber.stdout }}"
+
+- name: Write out "{{ ocp_basedomain }}" zone file
+  template:
+    src: "{{ profile }}_ocp_zonefile.j2"
+    dest: "/var/named/{{ profile }}_ocp_zonefile.db"
+
+- name: Write out reverse zone file
+  template:
+    src: "{{ profile }}_ocp_reverse.j2"
+    dest: "/var/named/{{ profile }}_ocp_reverse.db"
+
+- name: Write out "{{ infra.basedomain }}" zone file
+  template:
+    src: infra_zonefile.j2
+    dest: /var/named/infra_zonefile.db
+  notify: restart named
+
+- name: Enable firewall ports
+  firewalld:
+    port: "{{ item }}"
+    state: enabled
+    permanent: yes
+  loop:
+    - "53/tcp"
+    - "53/udp"
+  notify: restart firewall

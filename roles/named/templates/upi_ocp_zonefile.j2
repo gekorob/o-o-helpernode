@@ -1,0 +1,36 @@
+$TTL 1W
+@	IN	SOA	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.	root (
+			{{ serialnumber }}	; serial
+			3H		; refresh (3 hours)
+			30M		; retry (30 minutes)
+			2W		; expiry (2 weeks)
+			1W )		; minimum (1 week)
+	IN	NS	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+	IN	MX 10	smtp.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+; 
+ns1	IN	A	{{ helper_node.ipaddr }}
+smtp	IN	A	{{ helper_node.ipaddr }}
+;
+{{ helper_node.hostname }}	IN	A	{{ helper_node.ipaddr }}
+;
+; The api points to the IP of your load balancer
+api		IN	A	{{ helper_node.ipaddr }}
+api-int		IN	A	{{ helper_node.ipaddr }}
+;
+; The wildcard also points to the load balancer
+*.apps		IN	A	{{ helper_node.ipaddr }}
+;
+{% for item in bootstrap_list  %}
+{{ item.name }}   IN A  {{ item.ip }}
+{% endfor %}
+;
+{% for item in masters_list  %}
+{{ item.name }}   IN A  {{ item.ip }}
+{% endfor %}
+;
+{% for item in workers_list  %}
+{{ item.name }}   IN A  {{ item.ip }}
+{% endfor %}
+;
+;EOF

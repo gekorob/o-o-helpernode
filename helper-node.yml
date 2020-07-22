@@ -1,0 +1,37 @@
+---
+- hosts: helper
+  remote_user: root
+  gather_facts: false
+
+  tasks:
+    - import_tasks: common.yml
+      delegate_to: localhost
+
+    - import_tasks: set_vm_facts.yml
+      no_log: True
+      delegate_to: localhost
+
+    - name: Create from template
+      tags:
+        - provision
+      include_role:
+        name: create-from-template
+
+    - name: Add DNS
+      tags:
+        - dns
+      include_role:
+        name: named
+
+    - name: Add DHCP
+      tags:
+        - dhcp
+      include_role:
+        name: dhcpd
+
+    - name: Add PROXY
+      tags:
+        - proxy
+      include_role:
+        name: haproxy
+      when: profile != 'ipi'

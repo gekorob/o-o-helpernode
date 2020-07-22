@@ -1,0 +1,99 @@
+---
+- name: Set default empty lists
+  set_fact:
+    bootstrap_list: []
+    masters_list: []
+    workers_list: []
+
+- name: Get bootstrap vm info
+  ovirt_vm_info:
+    auth: "{{ ovirt_auth }}"
+    pattern: name="{{ metadata.infraID }}-bootstrap" and cluster="{{ ovirt.clustername }}"
+  register: bootstrap
+
+- name: Get master vm info
+  ovirt_vm_info:
+    auth: "{{ ovirt_auth }}"
+    pattern: name="{{ metadata.infraID }}-master*" and cluster="{{ ovirt.clustername }}"
+  register: masters
+
+- name: Get workers vm info
+  ovirt_vm_info:
+    auth: "{{ ovirt_auth }}"
+    pattern: name="{{ metadata.infraID }}-worker*" and cluster="{{ ovirt.clustername }}"
+  register: workers
+
+- name: Get bootstrap first nic info
+  ovirt_nic_info:
+    auth: "{{ ovirt_auth }}"
+    vm: "{{ item.name }}"
+  register: bootstrap_nic
+  with_items:
+    - "{{ bootstrap.ovirt_vms }}"
+
+- name: Get masters first nic info
+  ovirt_nic_info:
+    auth: "{{ ovirt_auth }}"
+    vm: "{{ item.name }}"
+  register: masters_nic
+  with_items:
+    - "{{ masters.ovirt_vms }}"
+
+- name: Get workers first nic info
+  ovirt_nic_info:
+    auth: "{{ ovirt_auth }}"
+    vm: "{{ item.name }}"
+  register: workers_nic
+  with_items:
+    - "{{ workers.ovirt_vms }}"
+
+- name: boostrap combined list
+  set_fact:
+    bootstrap_list: >-
+      {{
+        bootstrap_list +
+        [
+          {
+            'name': item.item.name,
+            'mac': item.ovirt_nics[0].mac.address,
+            'ip': (ocp.upi.boostrap_base_ipaddr | regex_replace('(^.*\.).*$', '\1')) + ((ocp.upi.bootstrap_base_ipaddr.split('.')[3] | int + idx) | string)
+          }
+        ]
+      }}
+  loop: "{{ bootstrap_nic.results }}"
+  loop_control:
+    index_var: idx
+
+- name: Masters combined list
+  set_fact:
+    masters_list: >-
+      {{
+        masters_list +
+        [
+          {
+            'name': item.item.name,
+            'mac': item.ovirt_nics[0].mac.address,
+            'ip': (ocp.upi.masters_base_ipaddr | regex_replace('(^.*\.).*$', '\1')) + ((ocp.upi.masters_base_ipaddr.split('.')[3] | int + idx) | string)
+          }
+        ]
+      }}
+  loop: "{{ masters_nic.results }}"
+  loop_control:
+    index_var: idx
+
+- name: Workers combined list
+  set_fact:
+    workers_list: >-
+      {{
+        workers_list +
+        [
+          {
+            'name': item.item.name,
+            'mac': item.ovirt_nics[0].mac.address,
+            'ip': (ocp.upi.workers_base_ipaddr | regex_replace('(^.*\.).*$', '\1')) + ((ocp.upi.workers_base_ipaddr.split('.')[3] | int + idx) | string)
+          }
+        ]
+      }}
+  loop: "{{ workers_nic.results }}"
+  loop_control:
+    index_var: idx

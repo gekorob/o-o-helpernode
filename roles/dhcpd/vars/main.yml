@@ -1,0 +1,6 @@
+---
+dhcp_subnet: 172.16.0.0
+dhcp_subnet_mask: 255.255.240.0
+dhcp_router: 172.16.0.1
+dhcp_range_min: 172.16.0.100
+dhcp_range_max: 172.16.0.150

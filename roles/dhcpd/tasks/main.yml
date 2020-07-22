@@ -1,0 +1,18 @@
+---
+- name: install dhcp package
+  become: yes
+  dnf:
+    name:
+      - dhcp-server
+    state: latest
+
+- name: dhcp config
+  become: yes
+  template:
+    src: dhcp.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: 0644
+    setype: dhcp_etc_t
+  notify: restart dhcp

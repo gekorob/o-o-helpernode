@@ -1,0 +1,48 @@
+---
+- name: Fetch template info
+  ovirt_template_info:
+    auth: "{{ ovirt_auth }}"
+    pattern: name={{ template_name }} and {{ ovirt.clustername }}
+  register: template_info
+  delegate_to: localhost
+
+- name: Include create template
+  import_tasks: create-template.yml
+  when: not template_info.ovirt_templates
+  delegate_to: localhost
+
+- name: provision VM with cloud init
+  ovirt_vm:
+    name: "{{ helper_node.hostname }}"
+    template: "{{ template_name }}"
+    cluster: "{{ ovirt.clustername }}"
+    auth: "{{ ovirt_auth }}"
+    memory: "{{ template_memory | default('2GiB') }}"
+    state: running
+
+    cloud_init:
+      nic_boot_protocol: "static"
+      nic_ip_address: "{{ helper_node.ipaddr }}"
+      nic_netmask: "{{external_netmask | default(omit)}}"
+      authorized_ssh_keys: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+      nic_gateway: "{{ helper_node.gateway }}"
+      nic_name: eth0
+      dns_servers: 8.8.8.8
+      custom_script: |
+        write_files:
+        - content: |
+            nameserver 8.8.8.8
+          path: /etc/resolv.conf
+          permissions: '0622'
+      nic_on_boot: true
+      host_name: "{{ helper_node.hostname | default(omit)}}"
+      user_name: root
+      root_password: "112d24e2"
+  delegate_to: localhost
+
+- name: Install base packages
+  dnf:
+    name:
+      - firewalld
+    state: latest
+  notify: restart firewall

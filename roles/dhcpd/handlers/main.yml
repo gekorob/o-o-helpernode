@@ -1,0 +1,6 @@
+---
+- name: restart dhcp
+  systemd:
+    name: dhcpd
+    state: restarted
+    enabled: yes

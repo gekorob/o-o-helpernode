@@ -1,0 +1,28 @@
+$TTL 1W
+@	IN	SOA	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.	root (
+			{{ serialnumber }}	; serial
+			3H		; refresh (3 hours)
+			30M		; retry (30 minutes)
+			2W		; expiry (2 weeks)
+			1W )		; minimum (1 week)
+	IN	NS	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+; syntax is "last octet" and the host must have fqdn with trailing dot
+1       IN      PTR     helper.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+{% for item in bootstrap_list  %}
+{{ item.ip.split('.')[3] }} IN PTR {{ item.name }}.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+{% endfor %}
+;
+{% for item in masters_list  %}
+{{ item.ip.split('.')[3] }} IN PTR {{ item.name }}.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+{% endfor %}
+;
+{% for item in workers_list  %}
+{{ item.ip.split('.')[3] }} IN PTR {{ item.name }}.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+{% endfor %}
+;
+{{ helper_node.ipaddr.split('.')[3] }}	IN	PTR	api.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+{{ helper_node.ipaddr.split('.')[3] }}	IN	PTR	api-int.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+;EOF

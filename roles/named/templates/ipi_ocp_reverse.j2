@@ -1,0 +1,16 @@
+$TTL 1W
+@	IN	SOA	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.	root (
+			{{ serialnumber }}	; serial
+			3H		; refresh (3 hours)
+			30M		; retry (30 minutes)
+			2W		; expiry (2 weeks)
+			1W )		; minimum (1 week)
+	IN	NS	ns1.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+; syntax is "last octet" and the host must have fqdn with trailing dot
+1       IN      PTR     helper.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+;
+{{ ocp.ipi.api_vip.split('.')[3] }}	IN	PTR	api.{{ ocp.clustername }}.{{ ocp.basedomain }}.
+;
+;EOF

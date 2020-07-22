@@ -1,0 +1,32 @@
+- name: Install haproxy package
+  dnf:
+    name:
+      - haproxy
+    state: latest
+
+- name: Allow proxy to connect to all TCP ports
+  seboolean:
+    name: haproxy_connect_any
+    state: yes
+    persistent: yes
+
+- name: Setup haproxy cfg file
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: 0644
+    setype: etc_t
+
+- name: Enable ports to be proxied
+  firewalld:
+    port: "{{ item }}/tcp"
+    state: enabled
+    permanent: yes
+  loop:
+    - 6443
+    - 22623
+    - 443
+    - 80
+  notify: restart firewall

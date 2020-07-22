@@ -1,0 +1,20 @@
+---
+- block:
+  - name: Download tpl qcow2
+    get_url:
+      url: "{{ template_qcow_gz_url }}"
+      dest: "/tmp/centos_8.2.qcow2"
+      force: no
+    register: downloaded_file
+
+  - debug:
+      msg: "{{ downloaded_file.dest }}"
+
+  - name: Set qcow_url to extracted file
+    set_fact:
+      qcow_url: "file://{{ downloaded_file.dest }}"
+  when: template_qcow_gz_url is defined
+
+- name: Create template
+  include_role:
+    name: ovirt.image-template

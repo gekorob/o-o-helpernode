@@ -1,0 +1,10 @@
+---
+template_name: "helper_tpl"
+template_qcow_gz_url: "https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-GenericCloud-8.2.2004-20200611.2.x86_64.qcow2"
+template_memory: 2GiB
+template_cpu: 2
+template_disk_size: 9GiB
+template_nics:
+  - name: nic1
+    profile_name: lab
+    interface: virtio
